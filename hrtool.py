@@ -3,6 +3,7 @@ import os
 import re
 import glob
 import subprocess
+import sys
 
 from os.path import exists
 from sys import exit
@@ -36,7 +37,7 @@ input_files = glob.glob(INPUT_FOLDER + '*.txt')
 
 for input_file in input_files:
   output_file = get_output_filename(input_file)
-  cmd = 'python solution.py'
+  cmd = 'python3 solution.py ' + str(os.getpid())
   
   process = subprocess.Popen(
    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE,
@@ -49,16 +50,18 @@ for input_file in input_files:
   with open(output_file) as f:
     output_data = f.read()
   
-  out, err = process.communicate(input_data)
+  _out, err = process.communicate(input=input_data)
   
+  out = ''
+  for out_ in _out:
+    out += out_
   if err:
     print("Error happened when executing your solution:")
     print("--------------------------------------------")
     print(err)
     exit(1)
   
-  out = out[:-1]
-  if out == int(output_data):
+  if out and int(out) == int(output_data):
     print('%s: SUCCESS' % input_file)
   else:
     print('%s: FAIL' % input_file)

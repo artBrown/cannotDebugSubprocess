@@ -1,4 +1,5 @@
 import inspect
+import os
 import sys
 from collections import defaultdict
 from typing import List
@@ -6,15 +7,24 @@ from math import inf
 import regex as re
 
 pairs = 'py/input/input01.txt'
-def pairs2line(lines: str = '') -> int:
+def pairs2line(lines: str = '', runner: bool=False) -> int:
   e = []
-  with open(lines) as f:
+  if runner:
+    f = iter(lines.split())
     l0 = next(f)
     yield int(l0)
-    for l in f.readlines():
+    for l in f:
       for p in re.findall(r'\[(\d+),(\d+)\]', l):
         e.append([int(p[0]),int(p[1])])
     yield e
+  else:
+    with open(lines) as f:
+      l0 = next(f)
+      yield int(l0)
+      for l in f.readlines():
+        for p in re.findall(r'\[(\d+),(\d+)\]', l):
+          e.append([int(p[0]),int(p[1])])
+      yield e
 
 class Solution:
   def minTrioDegree(self, n: int, edges: List[List[int]]) -> int:
@@ -33,11 +43,13 @@ class Solution:
     return res if res < inf else -1
 
 if __name__ == '__main__':
-  frames = inspect.getouterframes(inspect.currentframe())
-  runner = any('hrtool' in str(e) for e in frames)
+  pid = len(sys.argv) == 2 and sys.argv[1]
+  runner = pid == str(os.getppid())
   if runner:
-    pairs = sys.argv[1]
-  gen = pairs2line(pairs)
+    pairs = ''
+    for res1 in sys.stdin:
+      pairs += res1
+  gen = pairs2line(pairs, runner)
   products_nodes = next(gen)
   products_edges = next(gen)
   res = Solution().minTrioDegree(products_nodes, products_edges)
