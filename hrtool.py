@@ -29,12 +29,14 @@ if wrong_place_to_run:
   print(WRONG_PLACE_TO_RUN_MSG)
   exit(1)
 
+passed, failed = 0, 0
 if not exists(SOLUTION_FILE):
   print('Solution must be inside solution.py, put your solution to there and run this command again.')
   exit(1)
 
 input_files = glob.glob(INPUT_FOLDER + '*.txt')
 
+print('')
 for input_file in input_files:
   output_file = get_output_filename(input_file)
   cmd = 'python3 solution.py ' + str(os.getpid())
@@ -52,19 +54,17 @@ for input_file in input_files:
   
   _out, err = process.communicate(input=input_data)
   
+  if err:
+    print(err)
+    exit(1)
   out = ''
   for out_ in _out:
     out += out_
-  if err:
-    print("Error happened when executing your solution:")
-    print("--------------------------------------------")
-    print(err)
-    exit(1)
-  
   if out and int(out) == int(output_data):
-    print('%s: SUCCESS' % input_file)
+    # print(out)
+    passed += 1
   else:
-    print('%s: FAIL' % input_file)
-  print("-------OUTPUT------")
-  # print out%
-  print(out)
+    print(os.path.basename(output_file) + ': ' + output_data.strip() + ' ? ' + out)
+    failed += 1
+print('\ntotal: {} passed: {} failed: {}'.format(passed + failed, passed, failed))
+
