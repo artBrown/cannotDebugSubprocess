@@ -9,23 +9,17 @@ import regex as re
 pairs = 'py/input/input01.txt'
 def pairs2line(lines: str = '', runner: bool=False) -> int:
   e = []
-  if runner:
-    f = iter(lines.split())
-    l0 = next(f)
-    yield int(l0)
-    for l in f:
-      for p in re.findall(r'\[(\d+),(\d+)\]', l):
-        e.append([int(p[0]),int(p[1])])
-    yield e
-  else:
+  if not runner:
     with open(lines) as f:
-      l0 = next(f)
-      yield int(l0)
-      for l in f.readlines():
-        for p in re.findall(r'\[(\d+),(\d+)\]', l):
-          e.append([int(p[0]),int(p[1])])
-      yield e
-
+      lines = f.read()
+  f = iter(lines.split())
+  l0 = next(f)
+  yield int(l0)
+  for l in f:
+    for p in re.findall(r'\[(\d+),(\d+)\]', l):
+      e.append([int(p[0]),int(p[1])])
+  yield e
+  
 class Solution:
   def minTrioDegree(self, n: int, edges: List[List[int]]) -> int:
     g = defaultdict(set)
